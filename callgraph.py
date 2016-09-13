@@ -55,17 +55,6 @@ class CallGraphGenerator():
             self.data = json.load(fp)
 
         id = 0
-        for npm_default_task in self.npm_default_tasks:
-            if npm_default_task not in self.data['scripts'].keys():
-                d = {
-                    'id': id,
-                    'name': npm_default_task,
-                    'content': None,
-                    'dependencies': None
-                }
-                id += 1
-                self.tasks.append(d)
-
         tasks = sorted(self.data['scripts'].items())
         for task in tasks:
             d = {
@@ -77,9 +66,32 @@ class CallGraphGenerator():
             id += 1
             self.tasks.append(d)
 
-
         for task in self.tasks:
             self.alltasks.append(task['name'])
+
+        print(self.alltasks)
+
+        for task in self.alltasks:
+            if task in self.npm_default_tasks:
+                ispre = task[:3] == 'pre'
+                ispost = task[:4] == 'post'
+                if ispre:
+                    parenttaskname = task[3:]
+                elif ispost:
+                    parenttaskname = task[4:]
+                else:
+                    continue
+
+                if parenttaskname not in self.alltasks:
+                    d = {
+                        'id': id,
+                        'name': parenttaskname,
+                        'content': None,
+                        'dependencies': None
+                    }
+                    id += 1
+                    self.tasks.append(d)
+                    self.alltasks.append(parenttaskname)
 
     def writedot(self):
         self.filenames['out'] = self.data['name'] + '.dot'
