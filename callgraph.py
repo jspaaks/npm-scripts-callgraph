@@ -69,8 +69,6 @@ class CallGraphGenerator():
         for task in self.tasks:
             self.alltasks.append(task['name'])
 
-        print(self.alltasks)
-
         for task in self.alltasks:
             if task in self.npm_default_tasks:
                 ispre = task[:3] == 'pre'
